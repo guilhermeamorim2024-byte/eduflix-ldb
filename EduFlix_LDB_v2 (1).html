@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduFlix — Ensino Médio: Pensamento Crítico, Cidadania e Trabalho</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: #0a0a0a;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* ── INTRO SPLASH ── */
+#splash {
+  position: fixed; inset: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  transition: opacity 0.8s ease;
+}
+#splash.hide { opacity: 0; pointer-events: none; }
+.splash-logo {
+  font-size: 72px; font-weight: 900;
+  color: #E50914; letter-spacing: -3px;
+  animation: splashPulse 1.2s ease forwards;
+  opacity: 0;
+}
+.splash-sub {
+  font-size: 13px; letter-spacing: 4px;
+  color: #888; text-transform: uppercase;
+  margin-top: 8px;
+  animation: splashPulse 1.2s ease 0.3s forwards;
+  opacity: 0;
+}
+.splash-bar {
+  width: 200px; height: 3px;
+  background: #222; border-radius: 2px;
+  margin-top: 32px; overflow: hidden;
+}
+.splash-bar-fill {
+  height: 100%; background: #E50914;
+  border-radius: 2px;
+  animation: barFill 1.8s ease 0.5s forwards;
+  width: 0%;
+}
+@keyframes splashPulse {
+  0% { opacity:0; transform: scale(0.8); }
+  100% { opacity:1; transform: scale(1); }
+}
+@keyframes barFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* ── PARTICLES CANVAS ── */
+#particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.35; }
+
+/* ── NAV ── */
+.nf-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 16px 60px;
+  display: flex; align-items: center; gap: 36px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+  transition: background 0.4s;
+}
+.nf-nav.scrolled { background: rgba(10,10,10,0.97); backdrop-filter: blur(8px); }
+.nf-logo {
+  font-size: 26px; font-weight: 900;
+  color: #E50914; letter-spacing: -1px;
+  text-transform: uppercase; flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.nf-logo:hover { transform: scale(1.05); }
+.nf-logo span { color: #fff; font-weight: 300; font-size: 11px; letter-spacing: 3px; display: block; margin-top: -5px; }
+.nf-nav-links { display: flex; gap: 22px; list-style: none; }
+.nf-nav-links li {
+  font-size: 13px; color: #b3b3b3; cursor: pointer;
+  transition: color 0.2s; position: relative; padding-bottom: 2px;
+}
+.nf-nav-links li::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: #E50914;
+  transform: scaleX(0); transition: transform 0.25s;
+}
+.nf-nav-links li:hover { color: #fff; }
+.nf-nav-links li:hover::after, .nf-nav-links li.active::after { transform: scaleX(1); }
+.nf-nav-links li.active { color: #fff; }
+
+/* ── HERO ── */
+.nf-hero {
+  position: relative; height: 88vh; min-height: 540px;
+  overflow: hidden; cursor: pointer;
+}
+.nf-hero-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 115%;
+  object-fit: cover;
+  filter: grayscale(100%) brightness(0.4);
+  transition: filter 0.6s, transform 0.1s linear;
+  will-change: transform;
+}
+.nf-hero:hover .nf-hero-img { filter: grayscale(100%) brightness(0.5); }
+.nf-hero-vignette {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to right, rgba(10,10,10,0.97) 0%, rgba(10,10,10,0.65) 50%, transparent 100%),
+    linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.4) 40%, transparent 70%);
+}
+.nf-hero-content {
+  position: absolute; left: 60px; bottom: 130px;
+  max-width: 520px; z-index: 2;
+}
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; opacity: 0;
+  animation: fadeUp 0.7s ease 2.4s forwards;
+}
+.hero-eyebrow-line { width: 32px; height: 2px; background: #E50914; }
+.hero-eyebrow-text { font-size: 11px; letter-spacing: 3px; color: #E50914; text-transform: uppercase; font-weight: 700; }
+.hero-title {
+  font-size: 58px; font-weight: 900; line-height: 1.0;
+  margin-bottom: 12px; text-transform: uppercase; letter-spacing: -2px;
+  text-shadow: 2px 2px 30px rgba(0,0,0,0.9);
+  min-height: 130px;
+}
+.hero-title em { color: #E50914; font-style: normal; }
+.cursor { display: inline-block; width: 4px; height: 0.85em; background: #E50914; margin-left: 2px; vertical-align: middle; animation: blink 0.8s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.hero-meta {
+  display: flex; gap: 14px; align-items: center;
+  margin-bottom: 16px;
+  opacity: 0; animation: fadeUp 0.7s ease 3.2s forwards;
+}
+.hero-match { color: #46d369; font-size: 13px; font-weight: 700; }
+.hero-year, .hero-duration { color: #b3b3b3; font-size: 13px; }
+.hero-rating { border: 1px solid #b3b3b3; color: #b3b3b3; font-size: 10px; padding: 1px 6px; }
+.hero-desc {
+  font-size: 15px; color: #ddd; line-height: 1.65;
+  margin-bottom: 26px; text-shadow: 1px 1px 10px rgba(0,0,0,0.9);
+  opacity: 0; animation: fadeUp 0.7s ease 3.4s forwards;
+}
+.hero-buttons {
+  display: flex; gap: 12px;
+  opacity: 0; animation: fadeUp 0.7s ease 3.6s forwards;
+}
+.btn-play {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; color: #000;
+  border: none; padding: 12px 28px;
+  border-radius: 4px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s, transform 0.15s;
+}
+.btn-play:hover { background: rgba(255,255,255,0.82); transform: scale(1.04); }
+.btn-info {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(109,109,110,0.65); color: #fff;
+  border: none; padding: 12px 28px;
+  border-radius: 4px; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.2s, transform 0.15s;
+  backdrop-filter: blur(4px);
+}
+.btn-info:hover { background: rgba(109,109,110,0.45); transform: scale(1.04); }
+
+/* scroll indicator */
+.scroll-indicator {
+  position: absolute; bottom: 40px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  opacity: 0; animation: fadeIn 1s ease 4s forwards;
+  pointer-events: none;
+}
+.scroll-indicator span { font-size: 10px; letter-spacing: 2px; color: #666; text-transform: uppercase; }
+.scroll-dot { width: 6px; height: 6px; border-radius: 50%; background: #E50914; animation: scrollBounce 1.5s ease infinite; }
+@keyframes scrollBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── ROWS ── */
+.nf-rows {
+  padding: 0 60px 80px; margin-top: -70px;
+  position: relative; z-index: 2;
+}
+.nf-row { margin-bottom: 40px; }
+.nf-row-title {
+  font-size: 16px; font-weight: 700; color: #e5e5e5;
+  margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 12px;
+}
+.nf-row-title::before { content:''; width:4px; height:16px; background:#E50914; border-radius:2px; display:inline-block; }
+.nf-row-title span {
+  color: #E50914; font-size: 11px; font-weight: 400;
+  text-transform: none; letter-spacing: 0;
+}
+
+.nf-cards {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px;
+  scrollbar-width: none;
+}
+.nf-cards::-webkit-scrollbar { display: none; }
+
+.nf-card {
+  flex: 0 0 auto; width: 205px;
+  border-radius: 4px; overflow: hidden; cursor: pointer;
+  transition: transform 0.35s cubic-bezier(.2,.8,.4,1), box-shadow 0.35s;
+  position: relative; background: #1a1a1a;
+  opacity: 0; transform: translateY(30px);
+}
+.nf-card.visible { opacity: 1; transform: translateY(0); }
+.nf-card:hover {
+  transform: scale(1.12) translateY(-4px) !important;
+  z-index: 5;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 0 1px rgba(229,9,20,0.4);
+}
+.nf-card-thumb { height: 115px; position: relative; overflow: hidden; }
+.nf-card-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(100%) brightness(0.55);
+  transition: filter 0.35s, transform 0.35s;
+}
+.nf-card:hover .nf-card-thumb img {
+  filter: grayscale(80%) brightness(0.7);
+  transform: scale(1.08);
+}
+.nf-card-thumb-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(26,26,26,0.95) 0%, rgba(0,0,0,0.1) 60%);
+}
+.nf-card-thumb-label {
+  position: absolute; bottom: 8px; left: 10px; right: 10px;
+  font-size: 10px; font-weight: 700; color: #E50914;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
+.nf-card-info { padding: 10px 12px 14px; }
+.nf-card-title { font-size: 12px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 4px; text-transform: uppercase; }
+.nf-card-sub { font-size: 11px; color: #888; line-height: 1.35; }
+
+/* ── MODAL ── */
+.nf-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0); z-index: 2000;
+  align-items: flex-start; justify-content: center;
+  padding: 40px 20px; overflow-y: auto;
+  transition: background 0.3s;
+}
+.nf-modal-overlay.open { display: flex; background: rgba(0,0,0,0.82); }
+.nf-modal {
+  background: #181818; border-radius: 8px;
+  width: 100%; max-width: 660px;
+  overflow: hidden; position: relative;
+  margin: auto;
+  animation: modalIn 0.3s cubic-bezier(.2,.8,.4,1);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.95);
+}
+@keyframes modalIn {
+  from { transform: scale(0.9) translateY(30px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.nf-modal-hero { height: 260px; position: relative; overflow: hidden; }
+.nf-modal-hero img {
+  width: 100%; height: 100%; object-fit: cover;
+  filter: grayscale(100%) brightness(0.4);
+  transition: filter 0.4s;
+}
+.nf-modal-hero:hover img { filter: grayscale(90%) brightness(0.5); }
+.nf-modal-hero-gradient {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 160px;
+  background: linear-gradient(to top, #181818, transparent);
+}
+.nf-modal-hero-left {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 50%;
+  background: linear-gradient(to right, rgba(24,24,24,0.75), transparent);
+}
+.nf-modal-hero-content {
+  position: absolute; bottom: 22px; left: 26px; right: 56px; z-index: 2;
+}
+.modal-art-tag { font-size: 10px; color: #E50914; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+.modal-title { font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.05; }
+.modal-title em { color: #E50914; font-style: normal; }
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(0,0,0,0.75); border: none; color: #fff;
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  z-index: 10; transition: background 0.2s, transform 0.2s;
+}
+.modal-close:hover { background: #E50914; transform: rotate(90deg); }
+.nf-modal-body { padding: 0 26px 30px; }
+.modal-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+.modal-match { color: #46d369; font-size: 13px; font-weight: 700; }
+.modal-badge { background: #E50914; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+.modal-desc { font-size: 14px; color: #d2d2d2; line-height: 1.7; margin-bottom: 20px; }
+.modal-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #555; margin-bottom: 12px; }
+.modal-items { display: flex; flex-direction: column; gap: 8px; }
+.modal-item {
+  background: #222; border-radius: 4px; padding: 14px 16px;
+  display: flex; gap: 16px; align-items: flex-start;
+  transition: background 0.2s, transform 0.2s;
+  cursor: default;
+}
+.modal-item:hover { background: #2a2a2a; transform: translateX(4px); }
+.modal-item-num { color: #E50914; font-size: 22px; font-weight: 900; line-height: 1; min-width: 30px; flex-shrink: 0; }
+.modal-item-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.modal-item-text { font-size: 12px; color: #aaa; line-height: 1.55; }
+.modal-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.modal-col { background: #222; border-radius: 4px; padding: 14px 16px; }
+.modal-col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.modal-col-title.red { color: #E50914; }
+.modal-col-title.green { color: #46d369; }
+.modal-col-item {
+  font-size: 11px; color: #bbb; padding: 5px 0;
+  border-bottom: 1px solid #2e2e2e; line-height: 1.45;
+  display: flex; gap: 6px; transition: color 0.2s;
+}
+.modal-col-item:hover { color: #fff; }
+.modal-col-item::before { content: "▸"; flex-shrink: 0; font-size: 9px; margin-top: 2px; }
+.modal-col-item.red::before { color: #E50914; }
+.modal-col-item.green::before { color: #46d369; }
+.modal-col-item:last-child { border-bottom: none; }
+
+/* ── SCANLINE EFFECT (subtle) ── */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px
+  );
+  pointer-events: none; z-index: 9998;
+}
+
+/* ── PROGRESS BAR ── */
+#progressBar {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: #E50914; z-index: 9999;
+  width: 0%; transition: width 0.1s;
+  box-shadow: 0 0 8px #E50914;
+}
+
+/* glow nos títulos das rows ao aparecer */
+.nf-row-title { animation: glowIn 0.6s ease; }
+@keyframes glowIn {
+  from { text-shadow: 0 0 20px rgba(229,9,20,0.6); }
+  to { text-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progressBar"></div>
+
+<!-- INTRO SPLASH -->
+<div id="splash">
+  <div class="splash-logo">EduFlix</div>
+  <div class="splash-sub">Seminário de Educação</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- NAV -->
+<nav class="nf-nav" id="nav">
+  <div class="nf-logo">EduFlix<span>Seminário de Educação</span></div>
+  <ul class="nf-nav-links">
+    <li class="active">Início</li>
+    <li>LDB</li>
+    <li>Artigos</li>
+    <li>Itinerários</li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="nf-hero" id="hero" onclick="openModal('intro')">
+  <img class="nf-hero-img" id="heroImg"
+    src="https://images.unsplash.com/photo-1509062522246-3755977927d7?w=1600&q=80"
+    alt="Sala de aula histórica"
+    onerror="this.style.display='none'">
+  <div class="nf-hero-vignette"></div>
+  <div class="nf-hero-content">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <div class="hero-eyebrow-text">Seminário Destaque</div>
+    </div>
+    <div class="hero-title" id="heroTitle"><span class="cursor"></span></div>
+    <div class="hero-meta">
+      <span class="hero-match">▶ 98% relevante</span>
+      <span class="hero-year">LDB — 1996</span>
+      <span class="hero-rating">Ens. Médio</span>
+      <span class="hero-duration">Artigos 35 e 36</span>
+    </div>
+    <div class="hero-desc">Cidadania, trabalho e formação humana — os fundamentos do Ensino Médio na Lei de Diretrizes e Bases.</div>
+    <div class="hero-buttons">
+      <button class="btn-play" onclick="event.stopPropagation(); openModal('intro')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Explorar
+      </button>
+      <button class="btn-info" onclick="event.stopPropagation(); openModal('art35')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        Mais informações
+      </button>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>rolar</span>
+    <div class="scroll-dot"></div>
+  </div>
+</div>
+
+<!-- ROWS -->
+<div class="nf-rows">
+
+  <div class="nf-row">
+    <div class="nf-row-title">Artigos da LDB <span>Lei nº 9.394/1996</span></div>
+    <div class="nf-cards">
+      <div class="nf-card" onclick="openModal('art35')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Art. 35</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Artigo 35</div>
+          <div class="nf-card-sub">Ensino Médio: etapa final da Educação Básica</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('art36')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Art. 36</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Artigo 36</div>
+          <div class="nf-card-sub">Currículo e itinerários formativos</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('novoemedio')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Crítica</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Novo Ensino Médio</div>
+          <div class="nf-card-sub">Pontos negativos da reforma de 2017</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('estrategias')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1529390079861-591de354faf5?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Soluções</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Estratégias</div>
+          <div class="nf-card-sub">Como viabilizar o que os artigos propõem</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nf-row">
+    <div class="nf-row-title">Itinerários Formativos <span>Art. 36 — 5 Percursos</span></div>
+    <div class="nf-cards">
+      <div class="nf-card" onclick="openModal('it1')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Itinerário I</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Linguagens</div>
+          <div class="nf-card-sub">e suas tecnologias</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('it2')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Itinerário II</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Matemática</div>
+          <div class="nf-card-sub">e suas tecnologias</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('it3')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Itinerário III</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Ciências da Natureza</div>
+          <div class="nf-card-sub">e suas tecnologias</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('it4')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1529158062015-cad636e205a0?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Itinerário IV</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Ciências Humanas</div>
+          <div class="nf-card-sub">e Sociais Aplicadas</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('it5')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Itinerário V</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Formação Técnica</div>
+          <div class="nf-card-sub">e Profissional</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nf-row">
+    <div class="nf-row-title">Eixos Estruturantes</div>
+    <div class="nf-cards">
+      <div class="nf-card" onclick="openModal('eixo1')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1532094349884-543559373b09?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Eixo 1</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Investigação Científica</div>
+          <div class="nf-card-sub">Pensamento crítico e método</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('eixo2')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Eixo 2</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Processos Criativos</div>
+          <div class="nf-card-sub">Criação e expressão</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('eixo3')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Eixo 3</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Intervenção Sociocultural</div>
+          <div class="nf-card-sub">Mediação e cidadania</div>
+        </div>
+      </div>
+      <div class="nf-card" onclick="openModal('eixo4')">
+        <div class="nf-card-thumb">
+          <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&q=80" alt="">
+          <div class="nf-card-thumb-overlay"></div>
+          <div class="nf-card-thumb-label">Eixo 4</div>
+        </div>
+        <div class="nf-card-info">
+          <div class="nf-card-title">Empreendedorismo</div>
+          <div class="nf-card-sub">Inovação e mundo do trabalho</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="nf-modal-overlay" id="modalOverlay" onclick="closeOnBg(event)">
+  <div class="nf-modal" id="modal">
+    <div class="nf-modal-hero">
+      <img id="modalHeroImg" src="" alt="">
+      <div class="nf-modal-hero-gradient"></div>
+      <div class="nf-modal-hero-left"></div>
+      <div class="nf-modal-hero-content">
+        <div class="modal-art-tag" id="modalTag"></div>
+        <div class="modal-title" id="modalTitle"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="nf-modal-body">
+      <div class="modal-meta">
+        <span class="modal-match" id="modalMatch"></span>
+        <span class="modal-badge" id="modalBadge"></span>
+      </div>
+      <p class="modal-desc" id="modalDesc"></p>
+      <div class="modal-section-label" id="modalSectionLabel"></div>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const data = {
+  intro: {
+    tag:'Apresentação Geral', title:'<em>Ensino Médio:</em><br>Pensamento Crítico',
+    img:'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800&q=80',
+    match:'98% relevante', badge:'Seminário',
+    desc:'Esta apresentação explora os artigos 35 e 36 da Lei de Diretrizes e Bases (Lei nº 9.394/1996), abordando os fundamentos do Ensino Médio, seus objetivos de formação humana, cidadania e trabalho, além dos itinerários formativos e os desafios da reforma.',
+    sectionLabel:'Tópicos abordados',
+    items:[
+      {n:'01',title:'Artigo 35',text:'Define o Ensino Médio como etapa final da Educação Básica, com duração mínima de 3 anos e suas finalidades.'},
+      {n:'02',title:'Artigo 36',text:'Estabelece o currículo composto pela BNCC e pelos itinerários formativos organizados em 5 percursos.'},
+      {n:'03',title:'Pontos negativos',text:'Análise crítica dos problemas identificados no Novo Ensino Médio (Reforma de 2017).'},
+      {n:'04',title:'Estratégias',text:'Propostas concretas para viabilizar o que os artigos 35 e 36 propõem na prática.'},
+    ]
+  },
+  art35: {
+    tag:'Lei nº 9.394/1996', title:'<em>Artigo 35</em>',
+    img:'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=80',
+    match:'97% relevante', badge:'Fundamentos',
+    desc:'O Ensino Médio, etapa final da Educação Básica, com duração mínima de três anos, terá por finalidades:',
+    sectionLabel:'Incisos do Art. 35',
+    items:[
+      {n:'I',title:'Consolidação e aprofundamento',text:'A consolidação e o aprofundamento dos conhecimentos adquiridos no ensino fundamental, possibilitar o prosseguimento de estudos.'},
+      {n:'II',title:'Preparação básica para o trabalho',text:'A preparação básica para o trabalho e a cidadania do educando, para continuar aprendendo, de modo a ser capaz de se adaptar com flexibilidade a novas condições de ocupação ou aperfeiçoamento posteriores.'},
+      {n:'III',title:'Aprimoramento como pessoa humana',text:'O aprimoramento do educando como pessoa humana, incluindo a formação ética e o desenvolvimento da autonomia intelectual e do pensamento crítico.'},
+      {n:'IV',title:'Compreensão científico-tecnológica',text:'A compreensão dos fundamentos científico-tecnológicos dos processos produtivos, relacionando a teoria com a prática, no ensino de cada disciplina.'},
+    ]
+  },
+  art36: {
+    tag:'Lei nº 9.394/1996', title:'<em>Artigo 36</em>',
+    img:'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&q=80',
+    match:'96% relevante', badge:'Estrutura Curricular',
+    desc:'O currículo do ensino médio será composto pela Base Nacional Comum Curricular e por itinerários formativos, que deverão ser organizados por meio da oferta de diferentes arranjos curriculares, conforme a relevância para o contexto local e a possibilidade dos sistemas de ensino, a saber:',
+    sectionLabel:'Itinerários — Art. 36',
+    items:[
+      {n:'I',title:'Linguagens e suas tecnologias',text:'Aprofundamento em línguas, artes, comunicação e mídias digitais.'},
+      {n:'II',title:'Matemática e suas tecnologias',text:'Raciocínio lógico, estatística, matemática financeira e programação.'},
+      {n:'III',title:'Ciências da natureza e suas tecnologias',text:'Física, Química e Biologia aplicadas à investigação e à inovação.'},
+      {n:'IV',title:'Ciências humanas e sociais aplicadas',text:'História, Geografia, Filosofia, Sociologia e suas intersecções com a vida social.'},
+      {n:'V',title:'Formação técnica e profissional',text:'Qualificação profissional articulada ao currículo, com foco no mundo do trabalho.'},
+    ]
+  },
+  novoemedio: {
+    tag:'Análise Crítica', title:'Novo<br><em>Ensino Médio</em>',
+    img:'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&q=80',
+    match:'94% relevante', badge:'Pontos Negativos',
+    desc:'A reforma do Ensino Médio (Lei nº 13.415/2017) alterou profundamente os artigos 35 e 36 da LDB. Apesar das intenções declaradas de modernização, a implementação trouxe críticas significativas de educadores, estudantes e pesquisadores.',
+    sectionLabel:'Análise — Pontos negativos vs. potenciais',
+    twocol:{
+      left:{title:'Pontos Negativos',items:['Desigualdade na oferta de itinerários entre redes pública e privada','Redução de disciplinas como Arte, Filosofia e Sociologia','Infraestrutura pública insuficiente para a implementação','Formação docente inadequada para o novo modelo','Aprofundamento das desigualdades regionais','Reforma implementada sem diálogo amplo com educadores']},
+      right:{title:'Potenciais Positivos',items:['Maior flexibilidade curricular e autonomia do estudante','Possibilidade de trajetórias de aprendizagem personalizadas','Articulação mais direta com o mundo do trabalho','Ampliação da carga horária total','Incentivo ao protagonismo e ao projeto de vida','Reconhecimento da diversidade de talentos e interesses']}
+    }
+  },
+  estrategias: {
+    tag:'Propostas', title:'<em>Estratégias</em><br>de Viabilização',
+    img:'https://images.unsplash.com/photo-1529390079861-591de354faf5?w=800&q=80',
+    match:'95% relevante', badge:'Soluções',
+    desc:'Para que os artigos 35 e 36 da LDB se efetivem na prática das escolas brasileiras, é fundamental implementar estratégias concretas nos âmbitos pedagógico, estrutural e político.',
+    sectionLabel:'Estratégias principais',
+    items:[
+      {n:'01',title:'Formação continuada de professores',text:'Programas permanentes de capacitação docente para o novo modelo curricular e suas metodologias ativas.'},
+      {n:'02',title:'Investimento em infraestrutura',text:'Construção e reforma de laboratórios, ateliês e espaços adequados aos diferentes itinerários formativos.'},
+      {n:'03',title:'Diálogo com a comunidade escolar',text:'Participação efetiva de estudantes, professores e famílias no planejamento e na escolha dos itinerários ofertados.'},
+      {n:'04',title:'Parcerias com o setor produtivo',text:'Articulação com empresas, institutos federais e universidades para enriquecer especialmente a formação técnica e profissional.'},
+      {n:'05',title:'Avaliação contínua e flexibilidade',text:'Monitoramento permanente dos resultados e disposição institucional para revisar e adaptar o modelo conforme as necessidades locais.'},
+    ]
+  },
+  it1:{tag:'Itinerário I',title:'Linguagens<br>e suas <em>Tecnologias</em>',img:'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80',match:'93% relevante',badge:'Percurso',desc:'Conjunto de disciplinas, projetos e oficinas voltados ao desenvolvimento das competências em linguagem, comunicação, artes e mídias digitais.',sectionLabel:'O que envolve',items:[{n:'→',title:'Língua Portuguesa aprofundada',text:'Letramento literário, produção textual avançada, análise do discurso.'},{n:'→',title:'Línguas estrangeiras',text:'Inglês, Espanhol e outras línguas com ênfase em comunicação real e intercultural.'},{n:'→',title:'Artes e comunicação',text:'Artes visuais, teatro, dança, música, fotografia e produção audiovisual.'}]},
+  it2:{tag:'Itinerário II',title:'Matemática<br>e suas <em>Tecnologias</em>',img:'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&q=80',match:'91% relevante',badge:'Percurso',desc:'Percurso que aprofunda o raciocínio lógico-matemático, a resolução de problemas e a aplicação da matemática em contextos reais, incluindo tecnologia e programação.',sectionLabel:'O que envolve',items:[{n:'→',title:'Raciocínio lógico e estatística',text:'Matemática aplicada, probabilidade, análise de dados e interpretação de informações quantitativas.'},{n:'→',title:'Matemática financeira',text:'Educação financeira, juros, investimentos e tomada de decisão econômica.'},{n:'→',title:'Programação e tecnologia',text:'Lógica de programação, algoritmos, ciência da computação e pensamento computacional.'}]},
+  it3:{tag:'Itinerário III',title:'Ciências da Natureza<br>e suas <em>Tecnologias</em>',img:'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&q=80',match:'92% relevante',badge:'Percurso',desc:'Percurso voltado à investigação científica, ao método experimental e à compreensão das relações entre ciência, tecnologia, sociedade e ambiente.',sectionLabel:'O que envolve',items:[{n:'→',title:'Investigação e método científico',text:'Física, Química e Biologia com ênfase em laboratório, hipóteses e experimentos.'},{n:'→',title:'Ciência aplicada',text:'Biotecnologia, química ambiental, física aplicada à engenharia e às inovações tecnológicas.'},{n:'→',title:'Ciência, tecnologia e sociedade',text:'Impactos ambientais, bioética, desenvolvimento sustentável e responsabilidade científica.'}]},
+  it4:{tag:'Itinerário IV',title:'Ciências Humanas<br>e <em>Sociais Aplicadas</em>',img:'https://images.unsplash.com/photo-1529158062015-cad636e205a0?w=800&q=80',match:'93% relevante',badge:'Percurso',desc:'Percurso que aprofunda a compreensão das dinâmicas sociais, históricas, políticas e culturais, formando cidadãos críticos e conscientes de seu papel na sociedade.',sectionLabel:'O que envolve',items:[{n:'→',title:'História e Geopolítica',text:'Análise dos processos históricos, conflitos, movimentos sociais e relações de poder no mundo contemporâneo.'},{n:'→',title:'Filosofia e Sociologia',text:'Pensamento crítico, ética, teoria social, relações étnico-raciais e direitos humanos.'},{n:'→',title:'Economia e Direito',text:'Fundamentos da economia, educação financeira, direito constitucional e cidadania.'}]},
+  it5:{tag:'Itinerário V',title:'Formação Técnica<br>e <em>Profissional</em>',img:'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=800&q=80',match:'90% relevante',badge:'Percurso',desc:'Qualificação profissional articulada ao currículo, com foco no mundo do trabalho. Ao final dos três anos, as instituições deverão emitir certificado para os estudantes.',sectionLabel:'O que envolve',items:[{n:'→',title:'Formação profissional certificada',text:'Cursos técnicos articulados ao Ensino Médio, com emissão de certificado ao término.'},{n:'→',title:'Parceria com instituições',text:'Ofertado em parceria com institutos federais, SENAI, SENAC e outras instituições de educação profissional.'},{n:'→',title:'Autonomia escolar',text:'As escolas possuem autonomia para estabelecer quais formações serão ofertadas, considerando as particularidades e restrições de cada instituição.'}]},
+  eixo1:{tag:'Eixo Estruturante 1',title:'Investigação<br><em>Científica</em>',img:'https://images.unsplash.com/photo-1532094349884-543559373b09?w=800&q=80',match:'93% relevante',badge:'Eixo',desc:'Desenvolve no estudante a capacidade de questionar, investigar e produzir conhecimento com base em evidências, adotando postura crítica e curiosidade epistêmica.',sectionLabel:'Competências desenvolvidas',items:[{n:'→',title:'Método científico',text:'Formular hipóteses, coletar dados, analisar resultados e comunicar descobertas de forma fundamentada.'},{n:'→',title:'Pensamento crítico',text:'Analisar informações com base em critérios racionais, questionar afirmações e construir argumentos sólidos.'},{n:'→',title:'Curiosidade epistêmica',text:'Desenvolver interesse genuíno pela produção de conhecimento nas diferentes áreas do saber.'}]},
+  eixo2:{tag:'Eixo Estruturante 2',title:'Processos<br><em>Criativos</em>',img:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80',match:'91% relevante',badge:'Eixo',desc:'Estimula a criatividade e a capacidade de criar soluções, produtos e expressões artísticas e culturais originais, integrando diferentes linguagens e saberes.',sectionLabel:'Competências desenvolvidas',items:[{n:'→',title:'Criatividade e inovação',text:'Criar produtos, projetos e soluções com originalidade, utilizando diferentes linguagens e suportes.'},{n:'→',title:'Expressão e autoria',text:'Desenvolver voz própria nas produções artísticas, textuais, científicas e tecnológicas.'},{n:'→',title:'Resolução criativa de problemas',text:'Abordar desafios reais com perspectivas inovadoras e disposição para experimentar.'}]},
+  eixo3:{tag:'Eixo Estruturante 3',title:'Mediação e<br><em>Intervenção Sociocultural</em>',img:'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?w=800&q=80',match:'92% relevante',badge:'Eixo',desc:'Forma cidadãos capazes de compreender as dinâmicas sociais e culturais de sua comunidade e de intervir de forma ética, crítica e solidária.',sectionLabel:'Competências desenvolvidas',items:[{n:'→',title:'Cidadania ativa',text:'Participar de forma consciente e crítica nos processos democráticos e nas decisões coletivas.'},{n:'→',title:'Diversidade cultural',text:'Reconhecer, valorizar e interagir com a pluralidade cultural brasileira e mundial.'},{n:'→',title:'Mediação de conflitos',text:'Mediar situações de tensão com empatia, diálogo e respeito aos direitos humanos.'}]},
+  eixo4:{tag:'Eixo Estruturante 4',title:'<em>Empreende-</em><br>dorismo',img:'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&q=80',match:'90% relevante',badge:'Eixo',desc:'Desenvolve a mentalidade empreendedora e o protagonismo juvenil, capacitando os estudantes a criar soluções inovadoras para problemas reais do mundo do trabalho e da sociedade.',sectionLabel:'Competências desenvolvidas',items:[{n:'→',title:'Protagonismo juvenil',text:'Assumir responsabilidade pelo próprio projeto de vida e desenvolvimento profissional.'},{n:'→',title:'Cultura digital e inovação',text:'Utilizar tecnologias digitais de forma crítica, criativa e ética na criação de projetos.'},{n:'→',title:'Gestão e planejamento',text:'Definir metas, organizar recursos e executar projetos pessoais e coletivos com eficiência.'}]},
+};
+
+// ── INTRO SPLASH ──────────────────────────────────────────────
+window.addEventListener('load', () => {
+  playIntroSound();
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(() => { document.getElementById('splash').remove(); }, 900);
+    startTypewriter();
+    animateCards();
+  }, 2400);
+});
+
+// ── TYPEWRITER ────────────────────────────────────────────────
+function startTypewriter() {
+  const el = document.getElementById('heroTitle');
+  const lines = ['PENSAMENTO\nCRÍTICO,\nCIDADANIA\nE TRABALHO'];
+  const text = lines[0];
+  let i = 0;
+  el.innerHTML = '<span class="cursor"></span>';
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      const c = text[i];
+      el.innerHTML = text.slice(0, i+1).replace(/\n/g,'<br>') + '<span class="cursor"></span>';
+      i++;
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        el.querySelector('.cursor') && el.querySelector('.cursor').remove();
+      }, 1200);
+    }
+  }, 55);
+}
+
+// ── PARTICLES ─────────────────────────────────────────────────
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+function createParticle() {
+  return {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.5 + 0.3,
+    dx: (Math.random() - 0.5) * 0.3,
+    dy: -Math.random() * 0.4 - 0.1,
+    alpha: Math.random() * 0.5 + 0.1,
+    life: 0, maxLife: Math.random() * 300 + 200
+  };
+}
+for (let i = 0; i < 80; i++) particles.push(createParticle());
+function animParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach((p, idx) => {
+    p.life++;
+    if (p.life > p.maxLife) particles[idx] = createParticle();
+    const fade = p.life < 30 ? p.life/30 : p.life > p.maxLife-30 ? (p.maxLife-p.life)/30 : 1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(229,9,20,${p.alpha * fade})`;
+    ctx.fill();
+    p.x += p.dx; p.y += p.dy;
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+  });
+  requestAnimationFrame(animParticles);
+}
+animParticles();
+
+// ── PARALLAX HERO ─────────────────────────────────────────────
+document.getElementById('hero').addEventListener('mousemove', (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const xPct = (e.clientX - rect.left) / rect.width - 0.5;
+  const yPct = (e.clientY - rect.top) / rect.height - 0.5;
+  document.getElementById('heroImg').style.transform =
+    `translate(${xPct * 18}px, ${yPct * 10 - 7}%) scale(1.05)`;
+});
+document.getElementById('hero').addEventListener('mouseleave', () => {
+  document.getElementById('heroImg').style.transform = 'translate(0,0) scale(1)';
+});
+
+// ── SCROLL PROGRESS + NAV ─────────────────────────────────────
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('nav');
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+  const total = document.body.scrollHeight - window.innerHeight;
+  document.getElementById('progressBar').style.width = (window.scrollY / total * 100) + '%';
+  revealCards();
+});
+
+// ── CARD REVEAL ───────────────────────────────────────────────
+function animateCards() { setTimeout(revealCards, 100); }
+function revealCards() {
+  document.querySelectorAll('.nf-card').forEach((card, i) => {
+    const rect = card.getBoundingClientRect();
+    if (rect.top < window.innerHeight - 40) {
+      setTimeout(() => card.classList.add('visible'), i * 60);
+    }
+  });
+}
+
+// ── SOUND ENGINE (Web Audio) ──────────────────────────────────
+let audioCtx = null;
+let bgGain = null;
+let bgStarted = false;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playIntroSound() {
+  try {
+    const ac = getAudioCtx();
+    // Netflix-style "ta-dum" — dois tons graves dramáticos
+    const times = [0, 0.55];
+    const freqs = [100, 65];
+    times.forEach((t, i) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      const dist = ac.createWaveShaper();
+      // distortion curve for dramatic effect
+      const curve = new Float32Array(256);
+      for (let j = 0; j < 256; j++) {
+        const x = (j * 2) / 256 - 1;
+        curve[j] = (Math.PI + 200) * x / (Math.PI + 200 * Math.abs(x));
+      }
+      dist.curve = curve;
+      osc.connect(dist); dist.connect(gain); gain.connect(ac.destination);
+      osc.frequency.value = freqs[i];
+      osc.type = 'sawtooth';
+      gain.gain.setValueAtTime(0, ac.currentTime + t);
+      gain.gain.linearRampToValueAtTime(0.35, ac.currentTime + t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + t + 0.9);
+      osc.start(ac.currentTime + t);
+      osc.stop(ac.currentTime + t + 1);
+    });
+    // Start ambient after intro
+    setTimeout(startAmbient, 1800);
+  } catch(e) {}
+}
+
+function startAmbient() {
+  if (bgStarted) return;
+  bgStarted = true;
+  try {
+    const ac = getAudioCtx();
+    bgGain = ac.createGain();
+    bgGain.gain.value = 0;
+    bgGain.connect(ac.destination);
+
+    // Low drone
+    function makeDrone(freq, detune, vol) {
+      const osc = ac.createOscillator();
+      const g = ac.createGain();
+      const filter = ac.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 400;
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc.detune.value = detune;
+      g.gain.value = vol;
+      osc.connect(filter); filter.connect(g); g.connect(bgGain);
+      osc.start();
+      return osc;
+    }
+
+    // Slow LFO pulse
+    const lfo = ac.createOscillator();
+    const lfoGain = ac.createGain();
+    lfo.frequency.value = 0.08;
+    lfoGain.gain.value = 0.12;
+    lfo.connect(lfoGain);
+    lfoGain.connect(bgGain.gain);
+    lfo.start();
+
+    makeDrone(55, 0, 0.5);
+    makeDrone(55, 7, 0.3);
+    makeDrone(110, -4, 0.2);
+    makeDrone(82.4, 0, 0.15);
+
+    // Fade in slowly
+    bgGain.gain.setValueAtTime(0, ac.currentTime);
+    bgGain.gain.linearRampToValueAtTime(0.22, ac.currentTime + 3);
+  } catch(e) {}
+}
+
+function playHoverSound() {
+  try {
+    const ac = getAudioCtx();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.frequency.value = 880;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0, ac.currentTime);
+    gain.gain.linearRampToValueAtTime(0.04, ac.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.15);
+    osc.start(); osc.stop(ac.currentTime + 0.2);
+  } catch(e) {}
+}
+
+function playClickSound() {
+  try {
+    const ac = getAudioCtx();
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.frequency.setValueAtTime(440, ac.currentTime);
+    osc.frequency.linearRampToValueAtTime(220, ac.currentTime + 0.12);
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(0.12, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.25);
+    osc.start(); osc.stop(ac.currentTime + 0.3);
+  } catch(e) {}
+}
+
+// Add hover sounds to cards
+document.querySelectorAll('.nf-card').forEach(card => {
+  card.addEventListener('mouseenter', playHoverSound);
+});
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openModal(key) {
+  const d = data[key];
+  if (!d) return;
+  playClickSound();
+  document.getElementById('modalTag').textContent = d.tag;
+  document.getElementById('modalTitle').innerHTML = d.title;
+  document.getElementById('modalHeroImg').src = d.img;
+  document.getElementById('modalMatch').textContent = '▶ ' + d.match;
+  document.getElementById('modalBadge').textContent = d.badge;
+  document.getElementById('modalDesc').textContent = d.desc;
+  document.getElementById('modalSectionLabel').textContent = d.sectionLabel;
+  let html = '';
+  if (d.twocol) {
+    html = `<div class="modal-two-col">
+      <div class="modal-col">
+        <div class="modal-col-title red">${d.twocol.left.title}</div>
+        ${d.twocol.left.items.map(i=>`<div class="modal-col-item red">${i}</div>`).join('')}
+      </div>
+      <div class="modal-col">
+        <div class="modal-col-title green">${d.twocol.right.title}</div>
+        ${d.twocol.right.items.map(i=>`<div class="modal-col-item green">${i}</div>`).join('')}
+      </div>
+    </div>`;
+  } else if (d.items) {
+    html = `<div class="modal-items">${d.items.map(item=>`
+      <div class="modal-item">
+        <div class="modal-item-num">${item.n}</div>
+        <div>
+          <div class="modal-item-title">${item.title}</div>
+          <div class="modal-item-text">${item.text}</div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Fade in ambient if not started
+  if (!bgStarted) startAmbient();
+}
+
+function closeModal() {
+  playClickSound();
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// Trigger ambient on first user interaction (browser autoplay policy)
+document.addEventListener('click', () => {
+  if (!bgStarted) startAmbient();
+}, { once: true });
+</script>
+</body>
+</html>
